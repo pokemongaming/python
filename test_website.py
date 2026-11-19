@@ -1,7 +1,9 @@
 import pytest
-import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import Select
 
 base_url="https://www.letskodeit.com/practice"
@@ -9,6 +11,7 @@ base_url="https://www.letskodeit.com/practice"
 def test_get():
     
         driver=webdriver.Chrome()
+        wait = WebDriverWait(driver, 50)
         driver.get(base_url)
         url=driver.current_url
         print(url)
@@ -65,7 +68,7 @@ def test_get():
             title1=driver.title
             print(title1)
         driver.switch_to.window(parent_window)   
-        url11=driver.current_url
+        url11=driver.current_url        
         print(url11)
         title11=driver.title
         print(title11) 
@@ -95,3 +98,88 @@ def test_get():
         if select_element.is_multiple:
             select_element.select_by_visible_text("Apple")
             select_element.select_by_index(2) 
+            
+        #mouse hover
+        mhover=driver.find_element(By.ID,"mousehover")
+        actions=ActionChains(driver)
+        actions.move_to_element(mhover).perform()
+
+        #alert
+        textbox=driver.find_element(By.ID,"name")
+        abutton=driver.find_element(By.ID,"alertbtn")
+        cbutton=driver.find_element(By.ID,"confirmbtn")
+        textbox.send_keys("abfu")
+        abutton.click()
+        alert=driver.switch_to.alert
+        print(alert.text)
+        alert.accept()
+        textbox.send_keys("fhfh")
+        cbutton.click()
+        print(alert.text)
+        alert.accept()
+        textbox.send_keys("hfgj")
+        cbutton.click()
+        print(alert.text)
+        alert.dismiss()
+
+        #element displayed
+        tbox=driver.find_element(By.ID,"displayed-text")
+        hbtn=driver.find_element(By.ID,"hide-textbox")
+        sbtn=driver.find_element(By.ID,"show-textbox")
+        tbox.send_keys("Abhishek")
+        tstring=tbox.get_attribute("value")
+        print(tstring)
+        hbtn.click()
+        assert tbox.is_displayed()==False
+        sbtn.click()
+        assert tbox.is_displayed()==True
+
+        #enabled/disabled
+        tbox1=driver.find_element(By.ID,"enabled-example-input")
+        dbtn=driver.find_element(By.ID,"disabled-button")
+        ebtn=driver.find_element(By.ID,"enabled-button")
+        tbox1.send_keys("vnvn")
+        dbtn.click()
+        assert not tbox1.is_enabled()==True
+        ebtn.click()
+        assert tbox1.is_enabled()==True
+        tbox1.send_keys("vnvntjyty")
+        sfd=tbox1.get_attribute("value")
+        print(sfd)
+
+        #autosuggestion
+        
+       # Locate Auto Suggest input
+        auto_suggest = wait.until(
+            EC.visibility_of_element_located(
+                (By.ID, "autosuggest")
+            )
+        )
+
+        # Enter text
+        auto_suggest.send_keys("Py")
+
+        # Wait for suggestions
+        suggestions = wait.until(
+            EC.visibility_of_all_elements_located(
+                (By.CSS_SELECTOR, "ul.ui-autocomplete li")
+            )
+        )
+
+        # Print suggestions
+        for suggestion in suggestions:
+            print(suggestion.text)
+
+        # Select India
+        for suggestion in suggestions:
+            if suggestion.text == "Appium Python":
+                suggestion.click()
+                break
+
+        # Verify selected value
+        assert auto_suggest.get_attribute("value") == "Appium Python"
+        print("Appium Python selected successfully")
+
+    
+ 
+
