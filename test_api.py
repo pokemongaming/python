@@ -6,6 +6,7 @@ from selenium import webdriver
 base_url="https://jsonplaceholder.typicode.com"
 
 user_id=None
+token=None
 
 def test_get():
     global user_id
@@ -107,4 +108,37 @@ def test_delete():
     response=requests.delete(f'{base_url}/users/{user_id}',headers=headers)
     assert response.status_code==200
     data=response.json()
-    print(data)          
+    print(data)
+
+def test_queryparams():
+    headers={"Content-Type":"application/json"}
+    params={"id":1}
+    response=requests.get(f'{base_url}/users',headers=headers,params=params)
+    assert response.status_code==200
+    data=response.json()
+    print(data)    
+
+def test_access_token():
+    global token
+    headers={"Content-Type":"application/json"}
+    body={}
+    response=requests.post(f'{base_url}/posts',headers=headers,json=body)
+    assert response.status_code==201
+    data=response.json()
+    token=data["token"]
+    print(token)
+
+def test_authorization_header():
+    headers={"Authorization": f" Bearer {token}"}
+    body={}
+    response=requests.get(f'{base_url}/users',headers=headers,json=body)
+    assert response.status_code==200
+    data=response.json()
+    print(data)    
+
+@pytest.mark.parameterize("username","password",[("",""),("","")])
+def test_8(username,password):
+    response=requests.post(f'{base_url}/users/{username}')
+    assert response.status_code==200
+    data=response.json()
+    print(data)
